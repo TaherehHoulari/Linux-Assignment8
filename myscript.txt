@@ -1,0 +1,170 @@
+#!/bin/bash
+# File name: myscript.sh
+# Author: SeyedehTahereh Houlari
+# Semester: Fall 2022
+# Course Code: CST 8102
+# Course Section: 311
+# Date: 2022 Nov 18
+# Description: The purpose of this application is give this chance to the Linux user to manage an account.
+
+# clear the screen
+clear
+
+display_menu() {
+clear
+echo " User Management utilities " 
+echo " --------------------- "
+echo "A. Create User Account"
+echo "B. Delete User Account"
+echo "C. Change Supplementary Group for a User Account"
+echo "D. Change Initial Group for a User Account"
+echo "E. Change default login shell for a User Account"
+echo "F. Change account expiration date for a User Account"
+echo "Q. Quit"
+echo 
+echo -n "Select A--F or Q:" 
+}
+
+create_user() {
+read -p "Please enter username " uname
+read -p "Please enter home directory " homedir
+read -p "Please enter default login shell " defShell
+
+$(sudo useradd -s $defShell -d $homedir -m $uname 2>/dev/null)
+(( error_code = $? ))
+echo "Error code is $error_code"
+if [ $error_code -eq 12 ]
+   then
+   echo "Incorrect pathname"
+elif [ $error_code -eq 0 ]
+   then
+   echo "User $uname add successfully."
+   tail -1 /etc/passwd
+elif [ $error_code -eq 9 ]
+   then
+   echo "User $uname exists in system."
+fi
+sleep 3 
+}
+
+del_user() {
+read -p "Please enter the username you would like to delete: " uname
+$(sudo userdel -r $uname 2>/dev/null)
+(( error_code = $? ))
+echo "Error code is $error_code"
+if [ $error_code -eq 2 ]
+   then
+   echo "There is no such user. No action was performed."
+elif [ $error_code -eq 0 ]
+   then
+   echo "User $uname delete successfully."
+elif [ $error_code -eq 6 ]
+   then
+   echo "User $uname doesn't exist."
+elif [ $error_code -eq 1 ]
+   then
+   echo "The  user to delete was not a system account. No action was performed."
+fi
+sleep 3
+}
+
+add_supplementary_group() {
+read -p "Enter username " uname
+read -p "Enter Supplementary Group " suppGroup
+$(sudo usermod -G $suppGroup -a $uname 2>/dev/null)
+(( error_code = $? ))
+echo "Error code is $error_code"
+if [ $error_code -eq 0 ]
+   then
+   echo "Add $suppGroup to $uname successfully."
+   cat /etc/group |grep $suppGroup
+else
+   echo "Add $suppGroup to $uname failed."
+fi
+sleep 3
+}
+
+
+change_initial_group_name() {
+read -p "Enter username " uname
+read -p "Enter initial Group " initialGroup
+$(sudo usermod -G $initialGroup -a $uname 2>/dev/null)
+(( error_code = $? ))
+echo "Error code is $error_code"
+if [ $error_code -eq 0 ]
+   then
+   echo "change $initialGroup to $uname successfully."
+   cat /etc/group |grep $initialGroup
+else
+   echo "Add $initialGroup to $uname failed."
+fi
+sleep 3
+}
+
+change_default_shell() {
+read -p "Enter username " uname
+read -p "Enter shell name " shellname
+$(sudo usermod -G $initialGroup -a $uname 2>/dev/null)
+(( error_code = $? ))
+echo "Error code is $error_code"
+if [ $error_code -eq 0 ]
+   then
+   echo "change $shellname to $uname successfully."
+   cat /etc/group |grep $shellname
+else
+   echo "Add $shellname to $uname failed."
+fi
+sleep 3
+}
+
+change_expiration_date() {
+read -p "Enter username " uname
+read -p "Enter expiration date " expiredate
+$(sudo usermod -G $expiredate -a $uname 2>/dev/null)
+(( error_code = $? ))
+echo "Error code is $error_code"
+if [ $error_code -eq 0 ]
+   then
+   echo "change $expiredate to 2025 successfully."
+   cat /etc/group |grep $expiredate
+else
+   echo "Add 2025 to $expiredate failed."
+fi
+sleep 3
+}
+
+
+choice=n # initialize choice to a dummy value
+while [ $choice != "Q" ] && [ $choice != "q" ]
+do
+display_menu
+read choice
+if [ $choice = "A" ] || [ $choice = "a" ]
+then
+create_user
+elif [ $choice = "B" ] || [ $choice = "b" ]
+then
+del_user
+elif [ $choice = "C" ] || [ $choice = "c" ]
+then
+add_supplementary_group
+elif [ $choice = "D" ] || [ $choice = "d" ]
+then
+change_initial_group_name
+elif [ $choice = "E" ] || [ $choice = "e" ]
+then
+change_default_shell
+sleep 3
+elif [ $choice = "F" ] || [ $choice = "f" ]
+then
+echo "f"
+elif [ $choice = "Q" ] || [ $choice = "q" ]
+then
+echo "The code will be close"
+else
+echo "Valid options are A--F or [Q]uit"
+sleep 3
+fi
+done
+
+
